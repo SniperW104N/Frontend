@@ -2637,10 +2637,8 @@ showAdminTab = function(tab) {
   else if (tab === "settings") loadAdminSettings();
 };
 
-// ===== Houses & Hostels =====
-let properties = [];
-
-async function loadProperties() {
+// ===== Houses & Hostels (secondary UI; reuses `properties` declared above — do not redeclare) =====
+async function loadPropertiesForHousesGrid() {
   try {
     const type = document.getElementById("houseTypeFilter")?.value || "all";
     const search = document.getElementById("houseSearch")?.value.trim() || "";
@@ -2648,10 +2646,12 @@ async function loadProperties() {
     if (type !== "all") params.push(`type=${encodeURIComponent(type)}`);
     if (search) params.push(`search=${encodeURIComponent(search)}`);
     const path = "/properties" + (params.length ? "?" + params.join("&") : "");
-    properties = await apiGet(path);
-    renderProperties(properties);
+    const data = await apiGet(path);
+    properties = data.properties || data || [];
+    if (typeof renderProperties === "function") renderProperties(properties);
+    else if (typeof renderHousing === "function") renderHousing();
   } catch (err) {
-    const grid = document.getElementById("housesGrid");
+    const grid = document.getElementById("housesGrid") || document.getElementById("housingGrid");
     if (grid) grid.innerHTML = `<p style="color:#b91c1c;grid-column:1/-1;text-align:center;">Failed to load properties.</p>`;
   }
 }
@@ -2775,8 +2775,17 @@ Thank you.`;
 
 // Filters
 document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("houseSearch")?.addEventListener("input", () => loadProperties());
-  document.getElementById("houseTypeFilter")?.addEventListener("change", () => loadProperties());
+  const reloadHouses = () => {
+    if (document.getElementById("housesGrid") && typeof loadPropertiesForHousesGrid === "function") {
+      loadPropertiesForHousesGrid();
+    } else {
+      loadProperties();
+    }
+  };
+  document.getElementById("houseSearch")?.addEventListener("input", reloadHouses);
+  document.getElementById("houseTypeFilter")?.addEventListener("change", reloadHouses);
+  document.getElementById("housingSearch")?.addEventListener("input", () => loadProperties());
+  document.getElementById("housingTypeFilter")?.addEventListener("change", () => loadProperties());
   setupImageUpload("propImageFile", "propImage", "propImagePreview");
 });
 
@@ -2817,7 +2826,14 @@ document.getElementById("listPropertyForm")?.addEventListener("submit", async (e
 const _showSectionHouses = showSection;
 showSection = function(id) {
   _showSectionHouses(id);
-  if (id === "houses") loadProperties();
+  if (id === "houses") {
+    if (document.getElementById("housesGrid") && typeof loadPropertiesForHousesGrid === "function") {
+      loadPropertiesForHousesGrid();
+    } else {
+      loadProperties();
+    }
+  }
+  if (id === "housing" || id === "hostels") loadProperties();
   if (id === "dashboard") loadDashboard();
   if (id === "kyc") checkKycStatus();
 };
