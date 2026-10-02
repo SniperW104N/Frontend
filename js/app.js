@@ -4240,18 +4240,5 @@ showAdminTab = function(tab) {
     });
     document.getElementById("adminTabBackup")?.classList.remove("hidden");
     loadDbStatus();
-
-    from flask import Flask
-from flask_cors import CORS
-
-app = Flask(__name__)
-
-# ✅ Allow your Netlify domain
-CORS(app, origins=["https://sungarland.netlify.app"])
-
-@app.route("/api/kyc")
-def kyc():
-    return {"message": "KYC data loaded successfully"}
-
   }
 };
