@@ -7,7 +7,7 @@
   <!-- face-api.js for free client-side face matching -->
   <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
   <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#0f172a" />
+  <meta name="theme-color" content="#16a34a" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="description" content="SunGarland - Browse products and complete your order instantly on WhatsApp. Sellers can list their own items too." />
@@ -28,17 +28,16 @@
         <a href="#" class="nav-link active" data-section="home">Home</a>
         <a href="#" class="nav-link" data-section="products">Products</a>
         <a href="#" class="nav-link" data-section="houses">Houses & Hostels</a>
-        <a href="#" class="nav-link" data-section="help">Help</a>
-        <a href="#" class="nav-link" data-section="agentVerify">Agent Verification</a>
-        <a href="#" class="nav-link" data-section="housing">Houses & Hostels</a>
-        <a href="#" class="nav-link" data-section="sell">Sell an Item</a>
-        <a href="#" class="nav-link" data-section="kyc">KYC Verification</a>
-        <a href="#" class="nav-link" data-section="dashboard">My Dashboard</a>
-        <a href="#" class="nav-link" data-section="account">My Account</a>
-        <a href="#" class="nav-link" data-section="messages">Messages</a>
+        <a href="#" class="nav-link" data-section="sell">Sell</a>
         <a href="#" class="nav-link" data-section="how">How it Works</a>
+        <a href="#" class="nav-link" data-section="help">Help</a>
+        <a href="#" class="nav-link" data-section="dashboard">Dashboard</a>
+        <a href="#" class="nav-link" data-section="account">Account</a>
+        <a href="#" class="nav-link" data-section="messages">Messages</a>
+        <a href="#" class="nav-link" data-section="kyc">KYC</a>
+        <a href="#" class="nav-link" data-section="agentVerify">Agent Verify</a>
         <a href="#" class="nav-link" data-section="admin" id="adminNavLink" style="display:none;">Admin</a>
-        <button id="notifBell" class="btn btn-sm btn-outline" style="display:none;position:relative;" onclick="toggleNotifPanel()">🔔 <span id="notifCount" style="display:none;background:#ef4444;color:white;border-radius:10px;padding:0 5px;font-size:0.7rem;margin-left:2px;">0</span></button>
+        <button id="notifBell" class="btn btn-sm btn-outline" style="display:none;position:relative;" onclick="toggleNotifPanel()" aria-label="Notifications">🔔 <span id="notifCount" style="display:none;background:#ef4444;color:white;border-radius:10px;padding:0 5px;font-size:0.7rem;margin-left:2px;">0</span></button>
         <span id="authArea" class="auth-area">
           <button class="btn btn-sm btn-outline" id="loginBtn" onclick="openAuthModal('login')">Login</button>
           <button class="btn btn-sm btn-primary" id="registerBtn" onclick="openAuthModal('register')">Register</button>
@@ -57,10 +56,11 @@
       <div class="hero">
         <div class="container hero-content">
           <h1>Buy & Sell<br /><span>Instantly on WhatsApp</span></h1>
-          <p class="hero-sub">Browse unique products from independent sellers. Select an item and complete your order directly on WhatsApp — fast, personal, and secure.</p>
+          <p class="hero-sub">Discover products and hostels from verified sellers in Ghana. Tap Buy, chat on WhatsApp, and complete your order — simple, personal, and secure.</p>
           <div class="hero-actions">
             <button class="btn btn-primary" onclick="showSection('products')">Browse Products</button>
-            <button class="btn btn-outline" onclick="showSection('sell')">List Your Product</button>
+            <button class="btn btn-outline" onclick="showSection('houses')">Find Houses & Hostels</button>
+            <button class="btn btn-outline" onclick="showSection('sell')">Start Selling</button>
           </div>
         </div>
       </div>
@@ -93,144 +93,6 @@
     </section>
 
   
-    <!-- HOUSES & HOSTELS SECTION -->
-    <section id="housing" class="section">
-      <div class="container">
-        <h2 class="section-title">Houses & Hostels</h2>
-        
-        <div style="background:#fef3c7;border:1px solid #f59e0b;border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.75rem;">
-          <strong style="color:#92400e;">⚠ Important Safety Notice</strong>
-          <p style="color:#78350f;font-size:0.95rem;margin-top:0.5rem;line-height:1.55;">
-            SunGarland does <strong>not</strong> process any payments for houses or hostels.
-            <strong>Do not pay anyone</strong> until you have:
-          </p>
-          <ul style="color:#78350f;font-size:0.95rem;margin:0.5rem 0 0 1.25rem;line-height:1.6;">
-            <li>Visited the property <strong>in person</strong> and seen it with your own eyes</li>
-            <li>Confirmed that the person you are dealing with is the <strong>real agent in charge</strong></li>
-          </ul>
-          <p style="color:#78350f;font-size:0.9rem;margin-top:0.6rem;">
-            This section is for viewing and contacting agents only. No online payment is available here.
-          </p>
-        </div>
-
-        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:1.5rem;align-items:center;">
-          <input type="text" id="housingSearch" placeholder="Search location, title..." class="search-input" style="flex:1;min-width:180px;" />
-          <select id="housingTypeFilter" class="category-select">
-            <option value="all">All Types</option>
-            <option value="House">House</option>
-            <option value="Hostel">Hostel</option>
-            <option value="Apartment">Apartment</option>
-            <option value="Single Room">Single Room</option>
-            <option value="Chamber & Hall">Chamber & Hall</option>
-            <option value="Other">Other</option>
-          </select>
-          <button class="btn btn-primary btn-sm" onclick="showSection('listProperty')" id="listPropertyBtn">List a Property</button>
-        </div>
-
-        <div class="products-grid" id="housingGrid"></div>
-        <p id="housingEmpty" class="no-results hidden">No properties found.</p>
-      </div>
-    </section>
-
-
-    <!-- AGENT VERIFICATION (Houses & Hostels) -->
-    <section id="agentVerify" class="section">
-      <div class="container narrow">
-        <h2 class="section-title">Agent Verification</h2>
-        <p class="section-intro">
-          To list houses or hostels, you must prove you are a government-registered agent.
-          Upload your official registration document for admin review.
-        </p>
-
-        <div style="background:#eff6ff;border:1px solid #93c5fd;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:0.9rem;color:#1e3a8a;">
-          <strong>Required:</strong> A document that shows you are registered as an agent under the government
-          (e.g. license, certificate, or official registration letter). Listings are only allowed after approval.
-        </div>
-
-        <div id="agentStatusBox" class="sell-form" style="margin-bottom:1.5rem;">
-          <p>Checking status...</p>
-        </div>
-
-        <form id="agentVerifyForm" class="sell-form hidden">
-          <div class="form-group">
-            <label for="agentLicense">Government registration / license number *</label>
-            <input type="text" id="agentLicense" required placeholder="e.g. official registration number" />
-          </div>
-          <div class="form-group">
-            <label for="agentDocFile">Registration document *</label>
-            <input type="file" id="agentDocFile" accept="image/*,.pdf" required />
-            <small>Clear photo or scan of your government agent registration document</small>
-            <div id="agentDocPreview" style="margin-top:0.5rem;"></div>
-            <input type="hidden" id="agentDocUrl" />
-          </div>
-          <button type="submit" class="btn btn-primary btn-full">Submit for Review</button>
-        </form>
-      </div>
-    </section>
-
-    <!-- LIST PROPERTY SECTION -->
-    <section id="listProperty" class="section">
-      <div class="container narrow">
-        <h2 class="section-title">List a House or Hostel</h2>
-        
-        <div style="background:#fef3c7;border:1px solid #f59e0b;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:0.9rem;color:#78350f;">
-          <strong>Remember:</strong> Listings here are for viewing only. Buyers must inspect the property in person and verify you are the legitimate agent before any payment. There is no online payment on this section.
-        </div>
-
-        <div id="listPropertyLoginPrompt" class="success-message" style="background:#fef3c7;color:#92400e;margin-bottom:1.5rem;">
-          🔒 Please <a href="#" onclick="openAuthModal('login');return false;" style="font-weight:600;color:#92400e;">Login</a> 
-          (with approved KYC) to list a property.
-        </div>
-
-        <form id="listPropertyForm" class="sell-form hidden">
-          <div class="form-group">
-            <label for="propTitle">Title *</label>
-            <input type="text" id="propTitle" required placeholder="e.g. 2-Bedroom Hostel near KNUST" />
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="propType">Type *</label>
-              <select id="propType" required>
-                <option value="">Select type</option>
-                <option value="House">House</option>
-                <option value="Hostel">Hostel</option>
-                <option value="Apartment">Apartment</option>
-                <option value="Single Room">Single Room</option>
-                <option value="Chamber & Hall">Chamber & Hall</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="propPrice">Price / Rent (optional)</label>
-              <input type="text" id="propPrice" placeholder="e.g. GHS 800/month" />
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="propLocation">Location *</label>
-            <input type="text" id="propLocation" required placeholder="Area, city, landmarks" />
-          </div>
-          <div class="form-group">
-            <label for="propDescription">Description *</label>
-            <textarea id="propDescription" required rows="4" placeholder="Rooms, amenities, nearby facilities, conditions..."></textarea>
-          </div>
-          <div class="form-group">
-            <label for="propImageFile">Photo (optional)</label>
-            <input type="file" id="propImageFile" accept="image/*" />
-            <div id="propImagePreview" style="margin-top:0.5rem;"></div>
-            <input type="hidden" id="propImage" />
-          </div>
-          <div class="form-group">
-            <label for="propVideoFile">Video (optional)</label>
-            <input type="file" id="propVideoFile" accept="video/*" />
-            <div id="propVideoPreview" style="margin-top:0.5rem;"></div>
-            <input type="hidden" id="propVideo" />
-          </div>
-          <button type="submit" class="btn btn-primary btn-full">Publish Listing</button>
-        </form>
-        <div id="listPropertySuccess" class="success-message hidden">✅ Property listed successfully!</div>
-      </div>
-    </section>
-
   <!-- PRODUCTS SECTION -->
     <section id="products" class="section">
       <div class="container">
@@ -246,8 +108,8 @@
             <option value="price_desc">Price: High to Low</option>
             <option value="name">Name A–Z</option>
           </select>
-          <input type="number" id="minPrice" placeholder="Min $" class="search-input" style="width:90px;flex:none;" min="0" step="0.01" />
-          <input type="number" id="maxPrice" placeholder="Max $" class="search-input" style="width:90px;flex:none;" min="0" step="0.01" />
+          <input type="number" id="minPrice" placeholder="Min GHS" class="search-input" style="width:90px;flex:none;" min="0" step="0.01" />
+          <input type="number" id="maxPrice" placeholder="Max GHS" class="search-input" style="width:90px;flex:none;" min="0" step="0.01" />
         </div>
         <div class="products-grid" id="allProducts"></div>
         <p id="noResults" class="no-results hidden">No products found matching your search.</p>
