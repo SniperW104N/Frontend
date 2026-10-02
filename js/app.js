@@ -1308,18 +1308,28 @@ async function submitComment(productId) {
   }
 }
 
-// ===== Better KYC Previews in Admin =====
+// ===== Better KYC Previews in Admin (canonical loader — replaces earlier version) =====
 async function loadPendingKyc() {
-  const key = sessionStorage.getItem("wm_admin_key");
+  const key = (sessionStorage.getItem("wm_admin_key") || "").trim();
   const table = document.getElementById("kycTable");
-  if (!key || !table) return;
+  if (!table) return;
+  if (!key) {
+    table.innerHTML = `<p style="color:#b91c1c;padding:1rem;">Admin key missing. Log in to Admin again using Railway <code>ADMIN_SECRET</code>.</p>`;
+    return;
+  }
 
   try {
-    const res = await fetch(`${API_BASE}/admin/kyc/pending`, {
+    const res = await fetch(`${API_BASE}/admin/kyc/pending?key=${encodeURIComponent(key)}`, {
       headers: { "X-Admin-Key": key }
     });
-    if (!res.ok) throw new Error("Failed to load");
-    const list = await res.json();
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      if (res.status === 401) {
+        throw new Error("Unauthorized — admin password does not match Railway ADMIN_SECRET. Log in again.");
+      }
+      throw new Error(data.error || data.hint || `Failed to load (${res.status})`);
+    }
+    const list = Array.isArray(data) ? data : [];
 
     if (list.length === 0) {
       table.innerHTML = `<p style="color:#6b7280;padding:1.5rem;text-align:center;">No pending KYC submissions.</p>`;
@@ -1328,6 +1338,10 @@ async function loadPendingKyc() {
 
     let html = `<div style="display:flex;flex-direction:column;gap:1.25rem;">`;
     list.forEach(s => {
+      const face = (s.face_match_label || s.face_match_score != null)
+        ? `<div><strong>Face match:</strong> ${escapeHtml(String(s.face_match_label || "—"))}${s.face_match_score != null ? ` (${s.face_match_score}%)` : ""}</div>`
+        : "";
+      const wa = String(s.whatsapp || "").replace(/\D/g, "");
       html += `
         <div style="background:white;border-radius:12px;padding:1.25rem;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
           <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:0.75rem;">
@@ -1338,7 +1352,8 @@ async function loadPendingKyc() {
                 <div><strong>Full Name:</strong> ${escapeHtml(s.full_name || "—")}</div>
                 <div><strong>ID Number:</strong> ${escapeHtml(s.id_number || "—")}</div>
                 <div><strong>Address:</strong> ${escapeHtml(s.address || "—")}</div>
-                <div><strong>WhatsApp:</strong> <a href="https://wa.me/${s.whatsapp}" target="_blank" style="color:#25D366;">${s.whatsapp}</a></div>
+                <div><strong>WhatsApp:</strong> ${wa ? `<a href="https://wa.me/${wa}" target="_blank" style="color:#25D366;">${escapeHtml(String(s.whatsapp || ""))}</a>` : "—"}</div>
+                ${face}
               </div>
             </div>
             <div style="display:flex;gap:0.5rem;">
@@ -1351,7 +1366,7 @@ async function loadPendingKyc() {
               <div>
                 <div style="font-size:0.8rem;font-weight:600;margin-bottom:0.35rem;color:#374151;">ID Document</div>
                 <a href="${s.id_document_url}" target="_blank">
-                  <img src="${s.id_document_url}" alt="ID Document" 
+                  <img src="${s.id_document_url}" alt="ID Document"
                     style="max-width:220px;max-height:160px;border-radius:8px;border:1px solid #e5e7eb;object-fit:cover;" />
                 </a>
               </div>` : ""}
@@ -1359,7 +1374,7 @@ async function loadPendingKyc() {
               <div>
                 <div style="font-size:0.8rem;font-weight:600;margin-bottom:0.35rem;color:#374151;">Face Selfie</div>
                 <a href="${s.selfie_url}" target="_blank">
-                  <img src="${s.selfie_url}" alt="Selfie" 
+                  <img src="${s.selfie_url}" alt="Selfie"
                     style="max-width:220px;max-height:160px;border-radius:8px;border:1px solid #e5e7eb;object-fit:cover;" />
                 </a>
               </div>` : ""}
@@ -1369,7 +1384,7 @@ async function loadPendingKyc() {
     html += `</div>`;
     table.innerHTML = html;
   } catch (err) {
-    table.innerHTML = `<p style="color:#b91c1c;">Error: ${err.message}</p>`;
+    table.innerHTML = `<p style="color:#b91c1c;">Error: ${escapeHtml(err.message)}</p>`;
   }
 }
 
@@ -3972,59 +3987,8 @@ if (_loadAccountPagePush) {
   };
 }
 
-// Admin: show face match on pending KYC - enhance after load
-const _origLoadPendingKyc = typeof loadPendingKyc === "function" ? loadPendingKyc : null;
-if (_origLoadPendingKyc) {
-  loadPendingKyc = async function() {
-    await _origLoadPendingKyc();
-    // Try to inject face scores if table has structure - fetch again for scores
-    const key = sessionStorage.getItem("wm_admin_key");
-    const table = document.getElementById("kycTable");
-    if (!key || !table) return;
-    try {
-      const res = await fetch(`${API_BASE}/admin/kyc/pending`, { headers: { "X-Admin-Key": key } });
-      const list = await res.json();
-      list.forEach((s) => {
-        if (s.face_match_label || s.face_match_score != null) {
-          // already in HTML if we update loadPendingKyc - append badges via text search
-        }
-      });
-      // Re-render with face match
-      if (!list.length) return;
-      let html = `<div style="display:flex;flex-direction:column;gap:1.25rem;">`;
-      list.forEach(s => {
-        const faceInfo = s.face_match_label
-          ? `<div style="margin-top:0.35rem;font-size:0.85rem;"><strong>Face match:</strong> ${escapeHtml(String(s.face_match_label))} ${s.face_match_score != null ? `(${s.face_match_score}%)` : ""}</div>`
-          : "";
-        html += `
-        <div style="background:white;border-radius:12px;padding:1.25rem;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
-          <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:0.75rem;">
-            <div>
-              <strong style="font-size:1.1rem;">${escapeHtml(s.shop_name)}</strong>
-              <div style="font-size:0.85rem;color:#6b7280;">@${escapeHtml(s.username)} · ${escapeHtml(s.email)}</div>
-              <div style="margin-top:0.6rem;font-size:0.9rem;line-height:1.6;">
-                <div><strong>Full Name:</strong> ${escapeHtml(s.full_name || "—")}</div>
-                <div><strong>ID Number:</strong> ${escapeHtml(s.id_number || "—")}</div>
-                <div><strong>Address:</strong> ${escapeHtml(s.address || "—")}</div>
-                ${faceInfo}
-              </div>
-            </div>
-            <div style="display:flex;gap:0.5rem;">
-              <button class="btn btn-sm btn-primary" onclick="reviewKyc(${s.id}, 'approve')">✓ Approve</button>
-              <button class="btn btn-sm" style="background:#ef4444;color:white;" onclick="reviewKyc(${s.id}, 'reject')">✗ Reject</button>
-            </div>
-          </div>
-          <div style="display:flex;gap:1.25rem;margin-top:1.25rem;flex-wrap:wrap;">
-            ${s.id_document_url ? `<div><div style="font-size:0.8rem;font-weight:600;margin-bottom:0.35rem;">ID Document</div><a href="${s.id_document_url}" target="_blank"><img src="${s.id_document_url}" style="max-width:220px;max-height:160px;border-radius:8px;border:1px solid #e5e7eb;object-fit:cover;" /></a></div>` : ""}
-            ${s.selfie_url ? `<div><div style="font-size:0.8rem;font-weight:600;margin-bottom:0.35rem;">Face Selfie</div><a href="${s.selfie_url}" target="_blank"><img src="${s.selfie_url}" style="max-width:220px;max-height:160px;border-radius:8px;border:1px solid #e5e7eb;object-fit:cover;" /></a></div>` : ""}
-          </div>
-        </div>`;
-      });
-      html += `</div>`;
-      table.innerHTML = html;
-    } catch (e) {}
-  };
-}
+// loadPendingKyc already includes face match + ID/selfie previews — do not wrap/override it here.
+
 
 
 // ===== Reports =====
