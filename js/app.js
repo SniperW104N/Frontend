@@ -7,7 +7,7 @@ const API_BASE = "https://sungarland-production.up.railway.app/api";   // Change
 const SUPPORT = {
   businessName: "SunGarland",
   // WhatsApp number with country code, digits only (example Ghana: 233241234567)
-  whatsapp: "233XXXXXXXXX",
+  whatsapp: "233279177884",
   // Your Gmail or business email
   email: "your.email@gmail.com",
   // Optional phone for calls
