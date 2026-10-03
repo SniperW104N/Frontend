@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -27,6 +27,7 @@
       <nav class="nav" id="mainNav">
         <a href="#" class="nav-link active" data-section="home">Home</a>
         <a href="#" class="nav-link" data-section="products">Products</a>
+                <a href="#" class="nav-link" data-section="cart" id="navCartLink">Cart <span id="cartBadge" class="cart-badge hidden">0</span></a>
         <a href="#" class="nav-link" data-section="houses">Houses & Hostels</a>
         <a href="#" class="nav-link" data-section="sell">Sell</a>
         <a href="#" class="nav-link" data-section="how">How it Works</a>
@@ -92,7 +93,32 @@
       </div>
     </section>
 
-  
+    <!-- CART SECTION -->
+    <section id="cart" class="section">
+      <div class="container" style="max-width:820px;">
+        <h2 class="section-title">Your Cart</h2>
+        <p class="section-intro">Review items, update quantities, and see the running total before checkout.</p>
+        <div id="cartEmpty" class="cart-empty hidden">
+          <div style="font-size:2.5rem;margin-bottom:0.5rem;">🛒</div>
+          <p style="font-weight:600;margin-bottom:0.35rem;">Your cart is empty</p>
+          <p style="color:#64748b;font-size:0.95rem;margin-bottom:1.25rem;">Browse products and tap <strong>Cart</strong> to add items. The total updates as you add more.</p>
+          <button class="btn btn-primary" onclick="showSection('products')">Browse Products</button>
+        </div>
+        <div id="cartContent" class="hidden">
+          <div id="cartItems" class="cart-items"></div>
+          <div class="cart-summary">
+            <div class="cart-summary-row"><span>Subtotal</span><strong id="cartSubtotal">GHS 0.00</strong></div>
+            <div class="cart-summary-row cart-total"><span>Total</span><strong id="cartTotal">GHS 0.00</strong></div>
+            <p class="cart-note">Checkout opens WhatsApp with your item list, total, and saved shipping address so you can finish with the seller.</p>
+            <div class="cart-actions">
+              <button class="btn btn-outline" onclick="clearCart()">Clear cart</button>
+              <button class="btn btn-whatsapp" style="width:auto;flex:1;" onclick="checkoutCartWhatsApp()">Checkout on WhatsApp</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
   <!-- PRODUCTS SECTION -->
     <section id="products" class="section">
       <div class="container">
@@ -1054,6 +1080,7 @@
         <div>
           <h4>Quick Links</h4>
           <a href="#" onclick="showSection('products')">Products</a>
+          <a href="#" onclick="showSection('cart')">Cart</a>
           <a href="#" onclick="showSection('sell')">Sell an Item</a>
           <a href="#" onclick="showSection('how')">How it Works</a>
         </div>
